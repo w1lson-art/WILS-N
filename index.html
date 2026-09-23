@@ -2,39 +2,364 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="theme-color" content="#050505">
-<meta name="description" content="Wilson Legacy — Vision. Discipline. Legacy.">
-<title>WILSON — LEGACY</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Private Access</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:Arial,sans-serif}
+body{position:relative}
 
-html{scroll-behavior:smooth}
-
-body{
-background:#050505;
-color:#f5f0e8;
-font-family:Inter,Arial,sans-serif;
-overflow-x:hidden;
+#hero{
+ position:fixed;
+ inset:0;
+ background:#000 center/cover no-repeat;
 }
 
-body:before{
-content:"";
-position:fixed;
-inset:0;
-pointer-events:none;
-z-index:50;
-opacity:.035;
-background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+#overlay{
+ position:absolute;
+ inset:0;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ background:linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.65));
+ transition:opacity .8s ease,visibility .8s ease;
 }
 
-::selection{
-background:#d5ae58;
+#overlay.hidden{
+ opacity:0;
+ visibility:hidden;
+ pointer-events:none;
+}
+
+.small{
+ font-size:10px;
+ letter-spacing:5px;
+ margin-bottom:25px;
+ opacity:.8;
+}
+
+.enter{
+ border:1px solid rgba(255,255,255,.65);
+ background:rgba(0,0,0,.25);
+ color:white;
+ padding:16px 48px;
+ font-size:12px;
+ letter-spacing:5px;
+ cursor:pointer;
+ backdrop-filter:blur(12px);
+ transition:.35s;
+}
+
+.enter:hover{
+ background:white;
+ color:#000;
+ transform:scale(1.04);
+}
+
+#admin{
+ display:none;
+ position:fixed;
+ inset:0;
+ background:#050505;
+ overflow:auto;
+ padding:30px 20px;
+}
+
+.admin-box{
+ max-width:500px;
+ margin:50px auto;
+ padding:30px;
+ border:1px solid #292929;
+ background:#0d0d0d;
+ border-radius:20px;
+}
+
+h1{
+ font-size:25px;
+ margin-bottom:8px;
+}
+
+.subtitle{
+ color:#888;
+ font-size:13px;
+ margin-bottom:30px;
+}
+
+input[type=password]{
+ width:100%;
+ padding:15px;
+ background:#151515;
+ border:1px solid #333;
+ color:#fff;
+ border-radius:10px;
+ outline:none;
+ margin-bottom:12px;
+}
+
+button{
+ width:100%;
+ padding:15px;
+ border:0;
+ border-radius:10px;
+ background:#fff;
+ color:#000;
+ font-weight:bold;
+ cursor:pointer;
+ margin-top:8px;
+}
+
+#panel{display:none}
+
+.upload{
+ border:1px dashed #444;
+ border-radius:15px;
+ padding:30px 15px;
+ text-align:center;
+ margin-top:20px;
+}
+
+input[type=file]{
+ width:100%;
+ margin-top:15px;
+ color:#aaa;
+}
+
+.preview{
+ width:100%;
+ aspect-ratio:16/10;
+ object-fit:cover;
+ border-radius:14px;
+ margin-top:20px;
+ display:none;
+}
+
+.status{
+ margin-top:15px;
+ font-size:13px;
+ color:#aaa;
+ line-height:1.5;
+}
+
+.warning{
+ margin-top:20px;
+ padding:14px;
+ border-radius:10px;
+ background:#151515;
+ color:#999;
+ font-size:12px;
+ line-height:1.5;
+}
+</style>
+</head>
+
+<body>
+
+<div id="hero">
+    <div id="overlay">
+        <div class="small">PRIVATE ACCESS</div>
+        <button class="enter" onclick="enterSite()">ENTER</button>
+    </div>
+</div>
+
+<div id="admin">
+    <div class="admin-box">
+
+        <h1>ADMIN</h1>
+        <div class="subtitle">Welcome image control</div>
+
+        <div id="login">
+            <input id="password" type="password" placeholder="Admin password">
+            <button onclick="login()">LOGIN</button>
+            <div id="loginStatus" class="status"></div>
+        </div>
+
+        <div id="panel">
+
+            <div class="upload">
+                <strong>CHANGE WELCOME IMAGE</strong>
+
+                <input
+                    id="imageInput"
+                    type="file"
+                    accept="image/*"
+                    onchange="previewImage(event)"
+                >
+
+                <img id="preview" class="preview">
+
+                <button onclick="saveImage()">SAVE NEW PICTURE</button>
+
+                <div id="status" class="status"></div>
+            </div>
+
+            <div class="warning">
+                IMPORTANT: A normal static website cannot upload a file
+                to the internet for every visitor using only browser
+                JavaScript. This panel can preview/store the image locally,
+                but a real shared upload requires an online storage service
+                or server.
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+/* =========================
+   SETTINGS
+========================= */
+
+const ADMIN_PASSWORD = "1";
+
+const DEFAULT_IMAGE =
+"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=2000&q=90";
+
+/* =========================
+   LOAD IMAGE
+========================= */
+
+function loadImage(){
+
+    const saved = localStorage.getItem("welcomeImage");
+
+    document.getElementById("hero").style.backgroundImage =
+        `url("${saved || DEFAULT_IMAGE}")`;
+}
+
+loadImage();
+
+/* =========================
+   ENTER
+========================= */
+
+function enterSite(){
+
+    document.getElementById("overlay")
+        .classList.add("hidden");
+}
+
+/* =========================
+   ADMIN ROUTE
+========================= */
+
+function checkAdmin(){
+
+    const path = window.location.pathname.toLowerCase();
+
+    if(path === "/admin" || path === "/admin/"){
+
+        document.getElementById("hero").style.display = "none";
+        document.getElementById("admin").style.display = "block";
+
+    }
+
+}
+
+checkAdmin();
+
+/* =========================
+   LOGIN
+========================= */
+
+function login(){
+
+    const password =
+        document.getElementById("password").value;
+
+    const status =
+        document.getElementById("loginStatus");
+
+    if(password === ADMIN_PASSWORD){
+
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+
+    }else{
+
+        status.textContent = "Incorrect password.";
+
+    }
+
+}
+
+/* =========================
+   PREVIEW
+========================= */
+
+let selectedImage = null;
+
+function previewImage(event){
+
+    const file = event.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+        selectedImage = e.target.result;
+
+        const preview =
+            document.getElementById("preview");
+
+        preview.src = selectedImage;
+        preview.style.display = "block";
+
+    };
+
+    reader.readAsDataURL(file);
+}
+
+/* =========================
+   SAVE
+========================= */
+
+function saveImage(){
+
+    const status =
+        document.getElementById("status");
+
+    if(!selectedImage){
+
+        status.textContent =
+            "Please choose a picture first.";
+
+        return;
+    }
+
+    localStorage.setItem(
+        "welcomeImage",
+        selectedImage
+    );
+
+    document.getElementById("hero").style.backgroundImage =
+        `url("${selectedImage}")`;
+
+    status.textContent =
+        "Picture saved on this device.";
+
+}
+
+/* =========================
+   ENTER KEY
+========================= */
+
+document.getElementById("password")
+?.addEventListener("keydown", function(e){
+
+    if(e.key === "Enter"){
+        login();
+    }
+
+});
+</script>
+
+</body>
+</html>background:#d5ae58;
 color:#050505;
 }
 
