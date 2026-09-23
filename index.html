@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#050505">
+<meta name="description" content="Wilson Legacy — Vision. Discipline. Legacy.">
+<title>WILSON — LEGACY</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+background:#050505;
+color:#f5f0e8;
+font-family:Inter,Arial,sans-serif;
+overflow-x:hidden;
+}
+
+body:before{
+content:"";
+position:fixed;
+inset:0;
+pointer-events:none;
+z-index:50;
+opacity:.035;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection{
+background:#d5ae58;
+color:#050505;
+}
+
+/* LOADER */
+
+.loader{
+position:fixed;
+inset:0;
+z-index:1000;
+background:#050505;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:20px;
+transition:1s ease;
+}
+
+.loader.hide{
+opacity:0;
+visibility:hidden;
+}
+
+.loader-logo{
+font:600 85px "Playfair Display",serif;
+color:#d5ae58;
+}
+
+.loader-line{
+width:180px;
+height:1px;
+background:#252016;
+overflow:hidden;
+}
+
+.loader-line span{
+display:block;
+height:100%;
+width:0;
+background:#d5ae58;
+animation:loading 1.8s forwards;
+}
+
+.loader-text{
+font-size:8px;
+letter-spacing:4px;
+color:#777;
+}
+
+@keyframes loading{
+to{width:100%}
+}
+
+/* NAV */
+
+nav{
+position:fixed;
+z-index:100;
+top:0;
+left:0;
+right:0;
+height:80px;
+padding:0 6vw;
+display:flex;
+align-items:center;
+justify-content:space-between;
+background:linear-gradient(#050505ee,transparent);
+backdrop-filter:blur(10px);
+}
+
+.logo{
+color:#fff;
+text-decoration:none;
+font:800 12px Manrope;
+letter-spacing:3px;
+}
+
+.logo b{
+color:#d5ae58;
+font:600 25px "Playfair Display";
+margin-right:8px;
+}
+
+.nav-links{
+display:flex;
+gap:32px;
+}
+
+.nav-links a{
+color:#888;
+text-decoration:none;
+font-size:9px;
+letter-spacing:2px;
+transition:.3s;
+}
+
+.nav-links a:hover{
+color:#d5ae58;
+}
+
+.menu{
+display:none;
+background:none;
+border:0;
+}
+
+.menu span{
+display:block;
+width:25px;
+height:1px;
+background:#d5ae58;
+margin:6px;
+}
+
+/* HERO */
+
+.hero{
+min-height:100vh;
+padding:150px 7vw 80px;
+display:flex;
+align-items:center;
+position:relative;
+overflow:hidden;
+}
+
+.hero-content{
+position:relative;
+z-index:3;
+max-width:850px;
+}
+
+.eyebrow{
+font-size:9px;
+letter-spacing:4px;
+color:#a98645;
+}
+
+.hero h1{
+font:600 clamp(80px,16vw,190px)/.78 "Playfair Display",serif;
+letter-spacing:-8px;
+margin:30px 0;
+}
+
+.gold{
+color:#d5ae58;
+}
+
+.hero-sub{
+font:500 clamp(18px,2.7vw,29px)/1.4 Manrope;
+color:#ccc5ba;
+}
+
+.hero-sub em{
+font-family:"Playfair Display";
+color:#d5ae58;
+}
+
+.button{
+display:inline-flex;
+align-items:center;
+gap:30px;
+margin-top:45px;
+padding:17px 22px;
+border:1px solid #745b2d;
+color:#dfc78e;
+text-decoration:none;
+font-size:9px;
+letter-spacing:2px;
+transition:.4s;
+}
+
+.button:hover{
+background:#d5ae58;
+color:#050505;
+}
+
+.button span{
+font-size:17px;
+}
+
+/* ORBIT */
+
+.orbit{
+position:absolute;
+width:min(650px,65vw);
+height:min(650px,65vw);
+right:-5vw;
+top:50%;
+transform:translateY(-50%);
+display:flex;
+align-items:center;
+justify-content:center;
+opacity:.8;
+}
+
+.ring{
+position:absolute;
+border:1px solid #312818;
+border-radius:50%;
+}
+
+.ring.one{
+width:90%;
+height:90%;
+transform:rotate(25deg) scaleY(.65);
+}
+
+.ring.two{
+width:70%;
+height:70%;
+transform:rotate(-45deg) scaleY(.65);
+border-color:#564323;
+}
+
+.ring.three{
+width:48%;
+height:48%;
+transform:rotate(70deg) scaleY(.65);
+}
+
+.core{
+width:22%;
+aspect-ratio:1;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font:600 55px "Playfair Display";
+color:#d5ae58;
+background:radial-gradient(circle,#302510,#050505 70%);
+border:1px solid #80642f;
+box-shadow:0 0 100px #b48b3b22;
+}
+
+/* SECTIONS */
+
+section{
+position:relative;
+padding:140px 7vw;
+}
+
+.section-number{
+position:absolute;
+top:45px;
+left:7vw;
+font-size:8px;
+letter-spacing:3px;
+color:#555;
+}
+
+.gold-title{
+font-size:9px;
+letter-spacing:4px;
+color:#b99348;
+}
+
+h2{
+font:500 clamp(45px,7vw,90px)/.95 "Playfair Display",serif;
+margin-top:20px;
+}
+
+h2 span{
+color:#d5ae58;
+}
+
+/* VISION */
+
+.vision{
+background:#090908;
+}
+
+.vision-grid{
+max-width:1200px;
+margin:auto;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12vw;
+}
+
+.vision-text{
+padding-top:60px;
+color:#aaa49b;
+font-size:14px;
+line-height:1.9;
+max-width:460px;
+}
+
+.vision-text p+p{
+margin-top:25px;
+color:#666;
+}
+
+/* STATS */
+
+.stats{
+border-top:1px solid #191814;
+}
+
+.stats-grid{
+max-width:1200px;
+margin:70px auto 0;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:1px;
+background:#29251d;
+}
+
+.stat{
+background:#050505;
+padding:45px;
+min-height:260px;
+}
+
+.stat-number{
+font:500 50px "Playfair Display";
+color:#d5ae58;
+}
+
+.stat-title{
+display:block;
+font:700 10px Manrope;
+letter-spacing:3px;
+margin-top:25px;
+}
+
+.stat p{
+font-size:12px;
+line-height:1.7;
+color:#777;
+margin-top:15px;
+}
+
+/* LIFESTYLE */
+
+.lifestyle{
+background:#080807;
+}
+
+.lifestyle-heading{
+max-width:1200px;
+margin:auto auto 60px;
+}
+
+.lifestyle-grid{
+max-width:1200px;
+margin:auto;
+display:grid;
+grid-template-columns:1.3fr 1fr 1fr;
+gap:12px;
+}
+
+.card{
+height:430px;
+position:relative;
+overflow:hidden;
+border:1px solid #29251d;
+background:#111;
+}
+
+.card.large{
+height:560px;
+}
+
+.card-bg{
+position:absolute;
+inset:0;
+transition:1s;
+}
+
+.card:hover .card-bg{
+transform:scale(1.08);
+}
+
+.city{
+background:
+radial-gradient(circle at 60% 30%,#8a703e 0 2%,transparent 3%),
+linear-gradient(145deg,#332c1e,#060606 65%);
+}
+
+.drive{
+background:
+linear-gradient(145deg,#42351f,#080807 60%),
+radial-gradient(circle,#d5ae58,#000);
+}
+
+.night{
+background:
+radial-gradient(circle at 70% 22%,#d5ae58 0 1%,transparent 2%),
+linear-gradient(160deg,#252015,#040404 70%);
+}
+
+.card-content{
+position:absolute;
+left:25px;
+right:25px;
+bottom:25px;
+}
+
+.card-content small{
+color:#d5ae58;
+}
+
+.card-content h3{
+font:500 27px "Playfair Display";
+margin-top:8px;
+}
+
+.card-content p{
+font-size:11px;
+color:#888;
+margin-top:7px;
+}
+
+/* QUOTE */
+
+.quote{
+min-height:65vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+}
+
+.quote-mark{
+font:100px "Playfair Display";
+color:#d5ae58;
+line-height:.5;
+}
+
+blockquote{
+font:500 clamp(35px,6vw,75px)/1.05 "Playfair Display";
+margin-top:25px;
+}
+
+blockquote span{
+color:#d5ae58;
+}
+
+/* LEGACY */
+
+.legacy{
+background:#090908;
+}
+
+.legacy-grid{
+max-width:1200px;
+margin:auto;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12vw;
+}
+
+.legacy-list{
+border-top:1px solid #2b261d;
+}
+
+.legacy-item{
+padding:25px 0;
+border-bottom:1px solid #2b261d;
+display:grid;
+grid-template-columns:45px 1fr;
+}
+
+.legacy-item number{
+color:#d5ae58;
+font-size:10px;
+}
+
+.legacy-item strong{
+font:700 11px Manrope;
+letter-spacing:3px;
+}
+
+.legacy-item p{
+grid-column:2;
+color:#666;
+font-size:11px;
+margin-top:8px;
+}
+
+/* CONNECT */
+
+.connect{
+padding-bottom:170px;
+}
+
+.connect-box{
+max-width:1200px;
+margin:auto;
+padding:9vw;
+border:1px solid #42351f;
+background:
+radial-gradient(circle at 80% 10%,#322511,#080807 55%);
+}
+
+.socials{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-top:55px;
+}
+
+.socials a{
+padding:15px 20px;
+border:1px solid #302a20;
+color:#ccc;
+text-decoration:none;
+font-size:9px;
+letter-spacing:2px;
+transition:.3s;
+}
+
+.socials a:hover{
+border-color:#d5ae58;
+color:#d5ae58;
+}
+
+/* FOOTER */
+
+footer{
+padding:35px 7vw;
+border-top:1px solid #191814;
+display:flex;
+justify-content:space-between;
+align-items:center;
+color:#555;
+font-size:8px;
+letter-spacing:2px;
+}
+
+footer strong{
+font:700 12px Manrope;
+color:#ddd;
+letter-spacing:3px;
+}
+
+footer strong span{
+color:#d5ae58;
+}
+
+/* ANIMATION */
+
+.reveal{
+opacity:0;
+transform:translateY(35px);
+transition:1s ease;
+}
+
+.reveal.show{
+opacity:1;
+transform:none;
+}
+
+/* MOBILE */
+
+@media(max-width:800px){
+
+nav{
+height:70px;
+padding:0 6vw;
+}
+
+.nav-links{
+display:none;
+position:absolute;
+top:70px;
+right:6vw;
+padding:25px;
+background:#0b0b0a;
+border:1px solid #30291e;
+flex-direction:column;
+gap:24px;
+}
+
+.nav-links.open{
+display:flex;
+}
+
+.menu{
+display:block;
+}
+
+.hero{
+padding-top:140px;
+}
+
+.hero h1{
+letter-spacing:-5px;
+}
+
+.orbit{
+width:100vw;
+height:100vw;
+right:-40vw;
+opacity:.3;
+}
+
+section{
+padding:110px 7vw;
+}
+
+.vision-grid,
+.legacy-grid{
+grid-template-columns:1fr;
+gap:40px;
+}
+
+.vision-text{
+padding-top:0;
+}
+
+.stats-grid{
+grid-template-columns:1fr;
+}
+
+.lifestyle-grid{
+grid-template-columns:1fr;
+}
+
+.card,
+.card.large{
+height:400px;
+}
+
+.quote{
+min-height:55vh;
+}
+
+.connect-box{
+padding:12vw 8vw;
+}
+
+footer{
+flex-direction:column;
+align-items:flex-start;
+gap:15px;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOADING SCREEN -->
+<div class="loader" id="loader">
+<div class="loader-logo">W</div>
+<div class="loader-line"><span></span></div>
+<div class="loader-text">ENTERING THE LEGACY</div>
+</div>
+
+<!-- NAVIGATION -->
+<nav>
+<a href="#home" class="logo">
+<b>W</b> WILSON
+</a>
+
+<div class="nav-links" id="navLinks">
+<a href="#vision">VISION</a>
+<a href="#lifestyle">LIFESTYLE</a>
+<a href="#legacy">LEGACY</a>
+<a href="#connect">CONNECT</a>
+</div>
+
+<button class="menu" id="menu">
+<span></span>
+<span></span>
+</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+
+<div class="hero-content reveal">
+
+<div class="eyebrow">
+PRIVATE DIGITAL ESTATE · 2026
+</div>
+
+<h1>
+WILSON<span class="gold">.</span>
+</h1>
+
+<div class="hero-sub">
+Built for the vision.<br>
+<em>Designed for the legacy.</em>
+</div>
+
+<a href="#vision" class="button">
+ENTER THE WORLD
+<span>↗</span>
+</a>
+
+</div>
+
+<div class="orbit">
+<div class="ring one"></div>
+<div class="ring two"></div>
+<div class="ring three"></div>
+<div class="core">W</div>
+</div>
+
+</section>
+
+<!-- VISION -->
+<section class="vision" id="vision">
+
+<div class="section-number">01 / VISION</div>
+
+<div class="vision-grid">
+
+<div class="reveal">
+<div class="gold-title">THE MINDSET</div>
+
+<h2>
+Think beyond<br>
+<span>the ordinary.</span>
+</h2>
+</div>
+
+<div class="vision-text reveal">
+<p>
+Wilson Legacy is a personal digital space built around ambition,
+discipline, creation and the pursuit of an extraordinary life.
+</p>
+
+<p>
+No noise. No shortcuts. Just vision, movement and a long-term mindset.
+</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- PRINCIPLES -->
+<section class="stats">
+
+<div class="section-number">02 / PRINCIPLES</div>
+
+<div class="stats-grid">
+
+<div class="stat reveal">
+<div class="stat-number">01</div>
+<span class="stat-title">VISION</span>
+<p>
+See the destination before the world sees the road.
+</p>
+</div>
+
+<div class="stat reveal">
+<div class="stat-number">02</div>
+<span class="stat-title">DISCIPLINE</span>
+<p>
+Consistency turns ambition into something real.
+</p>
+</div>
+
+<div class="stat reveal">
+<div class="stat-number">03</div>
+<span class="stat-title">LEGACY</span>
+<p>
+Build things that remain valuable beyond the moment.
+</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- LIFESTYLE -->
+<section class="lifestyle" id="lifestyle">
+
+<div class="section-number">03 / LIFESTYLE</div>
+
+<div class="lifestyle-heading reveal">
+
+<div class="gold-title">THE STANDARD</div>
+
+<h2>
+Luxury is a<br>
+<span>state of mind.</span>
+</h2>
+
+</div>
+
+<div class="lifestyle-grid">
+
+<div class="card large reveal">
+<div class="card-bg city"></div>
+
+<div class="card-content">
+<small>01</small>
+<h3>THE CITY</h3>
+<p>Where ideas become movements.</p>
+</div>
+</div>
+
+<div class="card reveal">
+<div class="card-bg drive"></div>
+
+<div class="card-content">
+<small>02</small>
+<h3>THE DRIVE</h3>
+<p>Move with purpose.</p>
+</div>
+</div>
+
+<div class="card reveal">
+<div class="card-bg night"></div>
+
+<div class="card-content">
+<small>03</small>
+<h3>THE NIGHT</h3>
+<p>Quiet moments. Big plans.</p>
+</div>
+</div>
+
+</div>
+
+</section>
+
+<!-- QUOTE -->
+<section class="quote">
+
+<div class="reveal">
+
+<div class="quote-mark">“</div>
+
+<blockquote>
+Don't chase the image of success.<br>
+<span>Build the life behind it.</span>
+</blockquote>
+
+</div>
+
+</section>
+
+<!-- LEGACY -->
+<section class="legacy" id="legacy">
+
+<div class="section-number">04 / LEGACY</div>
+
+<div class="legacy-grid">
+
+<div class="reveal">
+
+<div class="gold-title">THE LONG GAME</div>
+
+<h2>
+Today is<br>
+only <span>chapter one.</span>
+</h2>
+
+</div>
+
+<div class="legacy-list reveal">
+
+<div class="legacy-item">
+<number>01</number>
+<strong>CREATE</strong>
+<p>Turn ideas into real things.</p>
+</div>
+
+<div class="legacy-item">
+<number>02</number>
+<strong>GROW</strong>
+<p>Keep learning. Keep moving.</p>
+</div>
+
+<div class="legacy-item">
+<number>03</number>
+<strong>IMPACT</strong>
+<p>Leave something meaningful behind.</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- CONNECT -->
+<section class="connect" id="connect">
+
+<div class="connect-box reveal">
+
+<div class="eyebrow">THE PRIVATE LINE</div>
+
+<h2>
+Let's build<br>
+<span>something legendary.</span>
+</h2>
+
+<div class="socials">
+
+<a href="https://instagram.com/" target="_blank">
+INSTAGRAM ↗
+</a>
+
+<a href="https://www.tiktok.com/" target="_blank">
+TIKTOK ↗
+</a>
+
+<a href="https://wa.me/" target="_blank">
+WHATSAPP ↗
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- FOOTER -->
+<footer>
+
+<strong>
+WILSON<span>®</span>
+</strong>
+
+<div>VISION · DISCIPLINE · LEGACY</div>
+
+<div>
+© <span id="year"></span> ALL RIGHTS RESERVED.
+</div>
+
+</footer>
+
+<script>
+
+const loader=document.getElementById("loader");
+
+window.addEventListener("load",()=>{
+setTimeout(()=>{
+loader.classList.add("hide");
+},1900);
+});
+
+document.getElementById("year").textContent=
+new Date().getFullYear();
+
+const menu=document.getElementById("menu");
+const nav=document.getElementById("navLinks");
+
+menu.addEventListener("click",()=>{
+nav.classList.toggle("open");
+});
+
+document.querySelectorAll(".nav-links a").forEach(link=>{
+link.addEventListener("click",()=>{
+nav.classList.remove("open");
+});
+});
+
+const observer=new IntersectionObserver((entries)=>{
+entries.forEach(entry=>{
+if(entry.isIntersecting){
+entry.target.classList.add("show");
+}
+});
+},{
+threshold:.12
+});
+
+document.querySelectorAll(".reveal").forEach(el=>{
+observer.observe(el);
+});
+
+</script>
+
+</body>
+  </html>
