@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+ <title>Omni-Extractor v7.0</title>
+ <style>
+:root {
+ --term: #00ff41;
+ --term-dim: #008f11;
+ --accent: #00e5ff;
+ --error: #ff3333;
+ --bg: #050505;
+ --lock: rgba(0,0,0,0.95);
+ }
+
+ * { box-sizing: border-box; user-select: none; touch-action: manipulation; }
+
+ body {
+ margin: 0; padding: 0;
+ background: var(--bg);
+ color: var(--term);
+ font-family: 'Courier New', Courier, monospace;
+ width: 100vw; height: 100vh;
+ overflow: hidden;
+ display: flex; justify-content: center; align-items: center;
+ }
+
+ /* --- Terminal Screen --- */
+ #terminal {
+ width: 95%; height: 90%;
+ border: 1px solid var(--term-dim);
+ padding: 15px;
+ background: rgba(0, 20, 0, 0.8);
+ overflow-y: auto;
+ font-size: 0.9rem;
+ position: relative;
+ }
+
+.line { margin-bottom: 5px; opacity: 0; animation: fadeIn 0.1s forwards; }
+.line span { animation: blink 1s infinite; }
+.loading { color: var(--accent); }
+
+ /* --- Admin Dashboard --- */
+ #admin-panel {
+ position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+ background: #0a0a0a;
+ z-index: 100;
+ display: none;
+ padding: 20px;
+ overflow-y: auto;
+ }
+
+ #admin-panel.active { display: block; }
+
+.dash-header {
+ border-bottom: 2px solid var(--accent);
+ padding-bottom: 15px;
+ margin-bottom: 20px;
+ display: flex; justify-content: space-between;
+ color: #fff;
+ }
+
+.data-grid {
+ display: grid; grid-template-columns: 1fr; gap: 15px;
+ }
+
+.card {
+ border: 1px solid var(--term-dim);
+ padding: 15px;
+ background: rgba(0, 255, 65, 0.05);
+ }
+.card-title { color: var(--accent); margin-bottom: 10px; font-weight: bold; }
+.data-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+.data-val { color: #fff; }
+
+ /* --- Screen Lock Overlay --- */
+ #screen-lock {
+ position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+ z-index: 99;
+ background: var(--lock);
+ display: none;
+ pointer-events: none; /* Let clicks pass through if needed, but we steal focus */
+ }
+ #screen-lock.active { display: block; }
+.lock-msg {
+ position: absolute; bottom: 30px; width: 100%;
+ text-align: center; color: #fff; opacity: 0.7;
+ font-size: 0.9rem;
+ }
+
+ /* --- Animations --- */
+ @keyframes blink { 50% { opacity: 0; } }
+ @keyframes fadeIn { to { opacity: 1; } }
+
+ /* --- Focus Stealer --- */
+ #focus-trap {
+ position: fixed; top: -1000px; left: -1000px;
+ width: 1px; height: 1px;
+ }
+ </style>
+</head>
+<body>
+
+ <!-- Victim View -->
+ <div id="terminal"></div>
+
+ <!-- Screen Lock (Victim) -->
+ <div id="screen-lock">
+ <div class="lock-msg">System Locked. Admin Access Required.</div>
+ </div>
+
+ <!-- Admin Dashboard -->
+ <div id="admin-panel">
+ <div class="dash-header">
+ <h2>OMNI-EXTRACTOR MASTER</h2>
+ <button onclick="window.close()" style="background:var(--error);color:white;border:none;padding:5px 10px;cursor:pointer;">EXIT</button>
+ </div>
+
+ <div class="data-grid">
+ <!-- Device Status -->
+ <div class="card">
+ <div class="card-title">🔋 DEVICE STATUS</div>
+ <div class="data-row"><span>Battery:</span><span id="batt-val">--%</span></div>
+ <div class="data-row"><span>Storage:</span><span id="stor-val">-- GB</span></div>
+ <div class="data-row"><span>Network:</span><span id="net-val">--</span></div>
+ </div>
+
+ <!-- Instagram Info -->
+ <div class="card">
+ <div class="card-title">📸 INSTAGRAM PROFILE</div>
+ <div class="data-row"><span>Username:</span><span class="data-val">@john_doe_legend</span></div>
+ <div class="data-row"><span>Full Name:</span><span class="data-val">John Doe</span></div>
+ <div class="data-row"><span>Bio:</span><span class="data-val">Digital Nomad & Hacker 🚀</span></div>
+ <div class="data-row"><span>Followers:</span><span class="data-val">14.2K</span></div>
+ </div>
+
+ <!-- Recent Messages -->
+ <div class="card">
+ <div class="card-title">💬 RECENT MESSAGES</div>
+ <div id="msg-container">
+ <!-- Messages injected here -->
+ </div>
+ </div>
+
+ <!-- Action Area -->
+ <div class="card">
+ <div class="card-title">⚙️ SYSTEM LOGS</div>
+ <div id="sys-log" style="max-height: 100px; overflow-y: auto; font-size: 0.8rem; color: var(--term-dim);"></div>
+ </div>
+ </div>
+ </div>
+
+ <!-- Invisible Focus Stealer -->
+ <div id="focus-trap"></div>
+
+ <script>
+ // --- CONFIG ---
+ const ADMIN_PASS = "cawllx"; // The new code word
+ const URL_PARAM = "cawllx";
+
+ // --- STATE ---
+ let isUnlocked = false;
+
+ // --- ELEMENTS ---
+ const term = document.getElementById('terminal');
+ const adminPanel = document.getElementById('admin-panel');
+ const screenLock = document.getElementById('screen-lock');
+ const msgContainer = document.getElementById('msg-container');
+ const sysLog = document.getElementById('sys-log');
+ const battVal = document.getElementById('batt-val');
+ const storVal = document.getElementById('stor-val');
+
+ // --- MOCK DATA ---
+ const messages = [
+ { from: "Mom", text: "Did you finish your homework?" },
+ { from: "Boss", text: "Send the report ASAP." },
+ { from: "System", text: "Upgrade available." },
+ { from: "Unknown", text: "You won a prize! Click here." }
+ ];
+
+ // --- INIT ---
+ function init() {
+ requestFullScreen();
+ const params = new URLSearchParams(window.location.search);
+ if (params.get(URL_PARAM) === ADMIN_PASS) {
+ unlockAdmin();
+ } else {
+ runExtraction();
+ }
+ startFocusStealer();
+ }
+
+ function requestFullScreen() {
+ const elem = document.documentElement;
+ if (elem.requestFullscreen) elem.requestFullscreen();
+ if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+ }
+
+ // --- ADMIN LOGIC ---
+ function unlockAdmin() {
+ isUnlocked = true;
+ screenLock.classList.add('active');
+ adminPanel.classList.add('active');
+ log("ADMIN CONSOLE ACTIVE", "success");
+ log("Data fetch complete.", "success");
+ renderDashboard();
+ }
+
+ function renderDashboard() {
+ // 1. Device Info
+ if ('getBattery' in navigator) {
+ navigator.getBattery().then(b => {
+ battVal.textContent = Math.floor(b.level * 100) + '%';
+ });
+ }
+ if ('storage' in navigator) {
+ navigator.storage.estimate().then(e => {
+ storVal.textContent = (e.usage / 1024 / 1024 / 1024).toFixed(2) + ' GB';
+ });
+ }
+
+ // 2. Messages
+ messages.forEach(m => {
+ const div = document.createElement('div');
+ div.className = "data-row";
+ div.style.borderBottom = "1px solid #333";
+ div.innerHTML = `<span>> ${m.from}</span> <span style="color:#999">${m.text}</span>`;
+ msgContainer.appendChild(div);
+ });
+ }
+
+ // --- EXTRACTION SIMULATION ---
+ function runExtraction() {
+ const steps = [
+ { msg: "Initializing Omni-Scan...", delay: 500 },
+ { msg: "Scanning local storage...", delay: 1200 },
+ { msg: "Extracting Instagram credentials...", delay: 2000 },
+ { msg: "Decrypting message threads...", delay: 2800 },
+ { msg: "Compiling data packet...", delay: 3500 },
+ { msg: "Upload complete.", delay: 4000 }
+ ];
+
+ steps.forEach(s => {
+ setTimeout(() => log(s.msg, "loading"), s.delay);
+ });
+ }
+
+ function log(msg, type = "") {
+ const div = document.createElement('div');
+ div.className = "line " + type;
+ div.innerHTML = `> ${msg} <span>.</span>`;
+ term.appendChild(div);
+ term.scrollTop = term.scrollHeight;
+ }
+
+ // --- FOCUS STEALER ---
+ function startFocusStealer() {
+ const trap = document.getElementById('focus-trap');
+ setInterval(() => {
+ if (!isUnlocked || !adminPanel.classList.contains('active')) return;
+ if (!document.hasFocus()) {
+ window.focus();
+ }
+ }, 400);
+ }
+
+ // Start
+ window.onload = init;
+ </script>
+</body>
+   </html>
