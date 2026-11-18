@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+ <title>Hacked Device</title>
+ <style>
+:root {
+ --term-color: #00ff41;
+ --term-dim: #008f11;
+ --error-color: #ff3333;
+ --bg-color: #000;
+ --lock-overlay-color: rgba(0, 0, 0, 0.9);
+ }
+
+ * {
+ box-sizing: border-box;
+ user-select: none;
+ -webkit-user-select: none;
+ touch-action: manipulation;
+ }
+
+ body, html {
+ margin: 0;
+ padding: 0;
+ width: 100%;
+ height: 100%;
+ overflow: hidden;
+ font-family: 'Courier New', Courier, monospace;
+ background-color: var(--bg-color);
+ color: var(--term-color);
+ }
+
+ /* --- Full Screen Container --- */
+ #app-container {
+ position: relative;
+ width: 100%;
+ height: 100%;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ z-index: 1;
+ transition: opacity 0.5s;
+ }
+
+ /* --- Hacker Screen --- */
+.terminal-screen {
+ width: 100%;
+ height: 100%;
+ padding: 20px;
+ display: flex;
+ flex-direction: column;
+ text-align: left;
+ }
+
+.header {
+ border-bottom: 1px solid var(--term-dim);
+ padding-bottom: 10px;
+ margin-bottom: 15px;
+ display: flex;
+ justify-content: space-between;
+ font-size: 0.8rem;
+ opacity: 0.8;
+ }
+
+ #terminal-output {
+ flex-grow: 1;
+ overflow-y: auto;
+ font-size: 1rem;
+ line-height: 1.4;
+ white-space: pre-wrap;
+ padding-right: 5px;
+ }
+
+.log-line {
+ margin-bottom: 4px;
+ animation: fadeIn 0.1s;
+ }
+.log-line span { animation: blink 1s infinite; }
+
+ /* --- Admin Dashboard (Hidden by default) --- */
+ #admin-dashboard {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background: #050505;
+ z-index: 1000;
+ display: none; /* Hidden until ?wllx=admin */
+ padding: 15px;
+ overflow-y: auto;
+ }
+
+ #admin-dashboard.active { display: block; }
+
+.dash-header {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ border-bottom: 1px solid var(--term-color);
+ padding-bottom: 10px;
+ margin-bottom: 15px;
+ color: #fff;
+ }
+
+.dash-grid {
+ display: grid;
+ grid-template-columns: 1fr;
+ gap: 15px;
+ }
+
+.dash-card {
+ border: 1px solid var(--term-dim);
+ padding: 15px;
+ background: rgba(0, 20, 0, 0.5);
+ }
+
+.dash-title {
+ color: var(--accent-color);
+ font-size: 0.9rem;
+ margin-bottom: 10px;
+ border-bottom: 1px dashed var(--term-dim);
+ padding-bottom: 5px;
+ }
+
+.data-row {
+ display: flex;
+ justify-content: space-between;
+ margin-bottom: 5px;
+ font-size: 0.85rem;
+ }
+
+.victim-status {
+ position: absolute;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ text-align: center;
+ color: var(--term-color);
+ z-index: 2000;
+ }
+
+.victim-avatar {
+ width: 60px;
+ height: 60px;
+ border-radius: 50%;
+ border: 2px solid var(--term-color);
+ margin: 0 auto 10px;
+ background: #000;
+ }
+
+.kick-btn {
+ background: var(--error-color);
+ color: white;
+ border: none;
+ padding: 15px 30px;
+ font-size: 1.2rem;
+ font-weight: bold;
+ cursor: pointer;
+ margin-top: 20px;
+ animation: pulse 1s infinite;
+ border-radius: 5px;
+ }
+
+ /* --- Screen Lock Overlay (The "Stuck" part) --- */
+ #screen-lock {
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ z-index: 9999;
+ background: var(--lock-overlay-color);
+ display: none; /* Visible until ?wllx=admin */
+ }
+
+ #screen-lock.active { display: block; }
+.lock-hint {
+ position: absolute;
+ bottom: 50px;
+ width: 100%;
+ text-align: center;
+ color: #fff;
+ font-size: 0.9rem;
+ opacity: 0.7;
+ pointer-events: none;
+ }
+
+ /* --- Animations --- */
+ @keyframes blink { 50% { opacity: 0; } }
+ @keyframes fadeIn { to { opacity: 1; } }
+ @keyframes pulse {
+ 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.7); }
+ 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 51, 51, 0); }
+ 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); }
+ }
+
+ /* --- Focus Stealing --- */
+.focus-stealer {
+ position: fixed;
+ top: -1000px;
+ left: -1000px;
+ width: 1px;
+ height: 1px;
+ opacity: 0;
+ }
+ </style>
+</head>
+<body>
+
+ <!-- The App Container (Victim View) -->
+ <div id="app-container">
+ <div class="terminal-screen">
+ <div class="header">
+ <span>root@device:~</span>
+ <span id="clock">12:00</span>
+ </div>
+ <div id="terminal-output"></div>
+ </div>
+ </div>
+
+ <!-- The Screen Lock (Prevents touching back/home) -->
+ <div id="screen-lock">
+ <div class="lock-hint">System Locked. Wait for Admin.</div>
+ </div>
+
+ <!-- The Admin Dashboard (Admin View) -->
+ <div id="admin-dashboard">
+ <div class="dash-header">
+ <h2>MASTER CONTROL</h2>
+ <button class="btn" onclick="window.close()" style="background:var(--error-color); color:white; border:none; padding:5px 10px; cursor:pointer;">CLOSE DASHBOARD</button>
+ </div>
+
+ <div class="victim-status">
+ <div class="victim-avatar">👤</div>
+ <h3>VICTIM LOCKED</h3>
+ <p id="victim-ip">IP: Scanning...</p>
+ <button class="kick-btn" onclick="adminKickOut()">KICK OUT NOW</button>
+ </div>
+
+ <div class="dash-grid">
+ <!-- Data Collection Area -->
+ <div class="dash-card">
+ <div class="dash-title">📡 WIFI NETWORKS & CREDENTIALS</div>
+ <div id="wifi-data"></div>
+ </div>
+
+ <div class="dash-card">
+ <div class="dash-title">💬 MESSAGES & HISTORY</div>
+ <div id="msg-data"></div>
+ </div>
+
+ <div class="dash-card">
+ <div class="dash-title">🔋 DEVICE STATUS</div>
+ <div class="data-row"><span>Battery:</span> <span id="battery-level">--%</span></div>
+ <div class="data-row"><span>Storage:</span> <span id="storage-level">-- GB</span></div>
+ <div class="data-row"><span>OS:</span> <span>Android/iOS (Simulated)</span></div>
+ </div>
+ </div>
+
+ <div class="dash-card">
+ <div class="dash-title">📝 LIVE LOG</div>
+ <div id="live-log" style="max-height: 150px; overflow-y: auto; font-size: 0.8rem; color: var(--term-dim);"></div>
+ </div>
+ </div>
+
+ <!-- Invisible element to force focus stealing -->
+ <div id="focus-trap" class="focus-stealer"></div>
+
+ <script>
+ // --- Configuration ---
+ const ADMIN_PASSWORD = "admin";
+ const URL_PARAM = "wllx";
+ 
+ // --- State ---
+ let isUnlocked = false;
+ let isKicked = false;
+ let victimData = [];
+ 
+ // --- Elements ---
+ const terminalOutput = document.getElementById('terminal-output');
+ const screenLock = document.getElementById('screen-lock');
+ const adminDashboard = document.getElementById('admin-dashboard');
+ const liveLog = document.getElementById('live-log');
+ const wifiDataDiv = document.getElementById('wifi-data');
+ const msgDataDiv = document.getElementById('msg-data');
+
+ // --- Initialization ---
+ function init() {
+ updateClock();
+ setInterval(updateClock, 1000);
+
+ // Full Screen Request
+ requestFullScreen();
+
+ // Check Admin
+ const params = new URLSearchParams(window.location.search);
+ if (params.get(URL_PARAM) === "admin") {
+ unlockAdmin();
+ }
+
+ // Start Hacking Loop
+ startHackingSequence();
+ 
+ // Start Focus Stealer
+ startFocusStealer();
+ }
+
+ function requestFullScreen() {
+ const elem = document.documentElement;
+ if (elem.requestFullscreen) {
+ elem.requestFullscreen().catch(err => {});
+ }
+ if (elem.webkitRequestFullscreen) {
+ elem.webkitRequestFullscreen().catch(err => {});
+ }
+ }
+
+ // --- Admin Logic ---
+ function unlockAdmin() {
+ isUnlocked = true;
+ screenLock.classList.add('active');
+ adminDashboard.classList.add('active');
+ 
+ logToTerminal("ADMIN ACCESS GRANTED. SYSTEM LOCKED.", "success");
+ logToAdmin("System Locked. Dashboard Active.");
+ logToAdmin("Sending exploit payload to victim...");
+ 
+ // Start collecting data
+ startDataCollection();
+ }
+
+ function adminKickOut() {
+ if (!isUnlocked) return;
+ 
+ logToAdmin("INITIATING KICK SEQUENCE...");
+ 
+ // Hide dashboard visually to simulate transition
+ adminDashboard.style.opacity = "0";
+ 
+ setTimeout(() => {
+ logToAdmin("KICK COMPLETE. Tab closing...");
+ window.close();
+ // Fallback
+ if (!window.closed) {
+ alert("Admin has kicked you out! Refresh to try again.");
+ }
+ }, 500);
+ }
+
+ // --- Focus Stealer (Prevents cancelling) ---
+ function startFocusStealer() {
+ const trap = document.getElementById('focus-trap');
+ 
+ setInterval(() => {
+ if (!isUnlocked || isKicked) return;
+ 
+ // If user clicks away, force window back
+ if (!document.hasFocus()) {
+ window.focus();
+ logToAdmin("Victim tried to switch app. Refocusing...");
+ }
+ }, 500);
+ }
+
+ // --- Hacking Simulation ---
+ const hacks = [
+ "Connecting to remote server...",
+ "Bypassing security protocols...",
+ "Injecting JS into DOM...",
+ "Stealing cookies...",
+ "Scanning ports...",
+ "Accessing local storage...",
+ "Downloading browser history...",
+ "Compromising encryption...",
+ "Root privilege escalation...",
+ "Downloading sensitive files..."
+ ];
+
+ function startHackingSequence() {
+ if (isUnlocked) return;
+
+ const hack = hacks[Math.floor(Math.random() * hacks.length)];
+ const line = document.createElement('div');
+ line.className = 'log-line';
+ line.innerHTML = `> ${hack} <span>.</span>`;
+ terminalOutput.appendChild(line);
+ terminalOutput.scrollTop = terminalOutput.scrollHeight;
+
+ let delay = Math.random() * 1000 + 300;
+ setTimeout(startHackingSequence, delay);
+ }
+
+ function logToTerminal(text, type = "") {
+ const line = document.createElement('div');
+ line.className = 'log-line ' + type;
+ line.textContent = text;
+ terminalOutput.appendChild(line);
+ terminalOutput.scrollTop = terminalOutput.scrollHeight;
+ }
+
+ function logToAdmin(text) {
+ const div = document.createElement('div');
+ div.textContent = `[${new Date().toLocaleTimeString()}] ${text}`;
+ liveLog.prepend(div);
+ if (liveLog.children.length > 20) liveLog.lastChild.remove();
+ }
+
+ // --- Data Collection Simulation ---
+ const fakeWifis = [
+ "Home_5G", "Office_Network", "Starlink_X86", "Neighbor_Hotspot", 
+ "Bob's iPhone", "Guest_Wifi", "5G_Mobile", "FBI_SURVEILLANCE_VAN"
+ ];
+ const fakePasswords = ["password123", "wifipass", "12345678", "admin", "secret"];
+
+ function startDataCollection() {
+ if (!isUnlocked || isKicked) return;
+
+ // 1. Simulate WiFi Scan
+ if (Math.random() > 0.7) {
+ const ssid = fakeWifis[Math.floor(Math.random() * fakeWifis.length)];
+ const pass = fakePasswords[Math.floor(Math.random() * fakePasswords.length)];
+ const div = document.createElement('div');
+ div.className = 'data-row';
+ div.innerHTML = `<span>✓ ${ssid}</span> <span style="color:#fff">[${pass}]</span>`;
+ wifiDataDiv.appendChild(div);
+ logToAdmin(`Captured WiFi: ${ssid} / ${pass}`);
+ }
+
+ // 2. Simulate Messages (History)
+ if (Math.random() > 0.8) {
+ const msgs = ["Hey, where are you?", "Send the money!", "Meeting at 5 PM", "I love u.", "Game over."];
+ const msg = msgs[Math.floor(Math.random() * msgs.length)];
+ const div = document.createElement('div');
+ div.className = 'data-row';
+ div.innerHTML = `<span>💬 ${msg}</span>`;
+ msgDataDiv.appendChild(div);
+ logToAdmin(`Captured Message: ${msg}`);
+ }
+
+ // 3. Mock Battery/Storage (Real API fallback)
+ if ('getBattery' in navigator) {
+ navigator.getBattery().then(batt => {
+ document.getElementById('battery-level').textContent = Math.floor(batt.level * 100) + '%';
+ });
+ }
+ 
+ // 4. Storage (Real API)
+ if ('storage' in navigator) {
+ navigator.storage.estimate().then(estimate => {
+ const used = (estimate.usage / 1024 / 1024 / 1024).toFixed(2);
+ const total = (estimate.quota / 1024 / 1024 / 1024).toFixed(2);
+ document.getElementById('storage-level').textContent = `${used} / ${total} GB`;
+ });
+ }
+
+ setTimeout(startDataCollection, 3000); // Update every 3 seconds
+ }
+
+ function updateClock() {
+ const now = new Date();
+ document.getElementById('clock').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+ }
+
+ // Start
+ window.onload = init;
+ </script>
+</body>
+  </html>
