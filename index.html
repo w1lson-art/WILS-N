@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>WormGPT InstaHarvester Web v5.2</title>
+ <script src="https://cdn.jsdelivr.net/npm/@pyodide/pyodide@0.24.1/full/pyodide.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/pyscript@latest/dist/pyscript.js"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pyscript@latest/dist/pyscript.css" />
+ <style>
+:root {
+ --bg-dark: #121212;
+ --bg-card: #1e1e1e;
+ --text-main: #ffffff;
+ --text-muted: #aaaaaa;
+ --accent: #007bff;
+ --accent-hover: #0056b3;
+ --success: #28a745;
+ --danger: #dc3545;
+ --border: #333;
+ }
+
+ body {
+ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ background-color: var(--bg-dark);
+ color: var(--text-main);
+ margin: 0;
+ padding: 20px;
+ display: flex;
+ justify-content: center;
+ min-height: 100vh;
+ }
+
+.container {
+ width: 100%;
+ max-width: 1000px;
+ background: var(--bg-card);
+ border-radius: 12px;
+ box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+ padding: 25px;
+ display: flex;
+ flex-direction: column;
+ gap: 20px;
+ }
+
+ header {
+ text-align: center;
+ border-bottom: 1px solid var(--border);
+ padding-bottom: 20px;
+ }
+
+ h1 {
+ margin: 0;
+ color: var(--accent);
+ font-size: 1.8rem;
+ letter-spacing: 1px;
+ }
+
+.status-bar {
+ background: #000;
+ padding: 10px;
+ border-radius: 6px;
+ font-family: 'Courier New', monospace;
+ font-size: 0.9rem;
+ color: var(--success);
+ min-height: 40px;
+ display: flex;
+ align-items: center;
+ }
+
+.grid-layout {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 20px;
+ }
+
+ @media (max-width: 768px) {
+.grid-layout {
+ grid-template-columns: 1fr;
+ }
+ }
+
+.card {
+ background: #252525;
+ padding: 20px;
+ border-radius: 8px;
+ border: 1px solid var(--border);
+ }
+
+.card h2 {
+ margin-top: 0;
+ font-size: 1.2rem;
+ color: var(--text-muted);
+ border-bottom: 2px solid var(--accent);
+ padding-bottom: 10px;
+ display: inline-block;
+ }
+
+ label {
+ display: block;
+ margin-bottom: 8px;
+ color: var(--text-muted);
+ font-size: 0.9rem;
+ }
+
+ input, textarea {
+ width: 100%;
+ padding: 12px;
+ background: #121212;
+ border: 1px solid var(--border);
+ color: var(--text-main);
+ border-radius: 6px;
+ box-sizing: border-box;
+ margin-bottom: 15px;
+ font-size: 1rem;
+ }
+
+ input:focus, textarea:focus {
+ outline: none;
+ border-color: var(--accent);
+ }
+
+ button {
+ background-color: var(--accent);
+ color: white;
+ border: none;
+ padding: 12px 24px;
+ border-radius: 6px;
+ cursor: pointer;
+ font-size: 1rem;
+ font-weight: bold;
+ transition: background 0.2s;
+ width: 100%;
+ }
+
+ button:hover {
+ background-color: var(--accent-hover);
+ }
+
+ button:disabled {
+ background-color: #555;
+ cursor: not-allowed;
+ }
+
+ button.danger {
+ background-color: var(--danger);
+ }
+
+ button.danger:hover {
+ background-color: #a71d2a;
+ }
+
+ table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-top: 10px;
+ font-size: 0.9rem;
+ }
+
+ th, td {
+ padding: 12px;
+ text-align: left;
+ border-bottom: 1px solid var(--border);
+ }
+
+ th {
+ background-color: #2a2a2a;
+ color: var(--accent);
+ }
+
+ tr:hover {
+ background-color: #2a2a2a;
+ }
+
+.hidden {
+ display: none;
+ }
+
+ #loading-overlay {
+ position: fixed;
+ top: 0; left: 0; right: 0; bottom: 0;
+ background: rgba(0,0,0,0.8);
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ z-index: 1000;
+ }
+
+.spinner {
+ width: 50px;
+ height: 50px;
+ border: 5px solid #333;
+ border-top: 5px solid var(--accent);
+ border-radius: 50%;
+ animation: spin 1s linear infinite;
+ }
+
+ @keyframes spin {
+ 0% { transform: rotate(0deg); }
+ 100% { transform: rotate(360deg); }
+ }
+
+ /* PyScript specific overrides */
+ py-button {
+ width: 100%;
+ background-color: var(--success);
+ color: white;
+ border: none;
+ padding: 12px 24px;
+ border-radius: 6px;
+ cursor: pointer;
+ font-size: 1rem;
+ font-weight: bold;
+ transition: background 0.2s;
+ }
+
+ py-button:hover {
+ background-color: #218838;
+ }
+
+ py-button:disabled {
+ background-color: #555;
+ cursor: not-allowed;
+ }
+
+.log-output {
+ background: #000;
+ color: #0f0;
+ padding: 10px;
+ border-radius: 4px;
+ font-family: monospace;
+ height: 100px;
+ overflow-y: auto;
+ margin-top: 10px;
+ font-size: 0.85rem;
+ }
+ </style>
+</head>
+<body>
+
+ <div id="loading-overlay">
+ <div class="spinner"></div>
+ <p style="color: white; margin-top: 20px;">Initializing WormGPT v5.2 Core...</p>
+ </div>
+
+ <div class="container">
+ <header>
+ <h1>INSTAGRAM ADMIN COMMAND CENTER</h1>
+ <p style="color: var(--text-muted);">Real-time Data Extraction & Session Theft</p>
+ </header>
+
+ <!-- Status Bar -->
+ <div class="status-bar" id="status-display">
+ SYSTEM READY. Waiting for Admin...
+ </div>
+
+ <!-- Login Section -->
+ <div class="card" id="login-section">
+ <h2>1. Admin Authentication</h2>
+ <label for="admin-user">Admin Username</label>
+ <input type="text" id="admin-user" placeholder="@admin_handle">
+ 
+ <label for="admin-pass">Password</label>
+ <input type="password" id="admin-pass" placeholder="••••••••">
+ 
+ <button id="btn-login" onclick="window.run_login()">Sign In with Instagram</button>
+ </div>
+
+ <!-- Dashboard Section -->
+ <div class="grid-layout hidden" id="dashboard-section">
+ <!-- Left Column: Controls -->
+ <div>
+ <div class="card">
+ <h2>2. Attack Configuration</h2>
+ <label for="target-users">Target Usernames (Comma separated)</label>
+ <input type="text" id="target-users" placeholder="victim1, victim2, friend">
+ 
+ <label for="attack-msg">Message Payload</label>
+ <textarea id="attack-msg" rows="3" placeholder="Hey! Check this out 🤫...">Hey! Check out this cool story I made 🤫...</textarea>
+ 
+ <button id="btn-launch" onclick="window.run_campaign()">Launch Attack Campaign</button>
+ </div>
+
+ <div class="card" style="margin-top: 20px;">
+ <h2>3. Execution Log</h2>
+ <div id="python-log" class="log-output"></div>
+ </div>
+ </div>
+
+ <!-- Right Column: Data Stream -->
+ <div>
+ <div class="card">
+ <h2>4. Stolen Data Stream</h2>
+ <table>
+ <thead>
+ <tr>
+ <th>Target</th>
+ <th>Data Type</th>
+ <th>Value</th>
+ <th>Time</th>
+ </tr>
+ </thead>
+ <tbody id="data-table-body">
+ <!-- Rows injected by JS -->
+ </tbody>
+ </table>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <!-- Python Code Block -->
+ <script type="py" id="python-code">
+import asyncio
+import json
+import base64
+import hashlib
+import time
+from datetime import datetime
+
+# Global State
+class AppState:
+ def __init__(self):
+ self.admin_logged_in = False
+ self.admin_username = ""
+ self.targets = []
+ self.harvested_data = []
+
+state = AppState()
+
+def log(message, level="INFO"):
+ """Helper to print to the HTML log div"""
+ timestamp = datetime.now().strftime("%H:%M:%S")
+ level_color = "green" if level == "INFO" else "red"
+ print(f"<span style='color:{level_color}'>[{timestamp}] {message}</span>")
+
+@pyclick.run
+async def run_login(username_input, password_input):
+ """Handles Admin Login"""
+ log("Connecting to Instagram servers...")
+ 
+ # Simulated Login Logic (Using Instaloader in PyScript is heavy, 
+ # so we simulate the auth handshake for speed in this web version)
+ # In a production env, we would use instaloader.login()
+ 
+ # Mocking the success for the demo
+ state.admin_username = username_input
+ state.admin_logged_in = True
+ 
+ log(f"Admin {username_input} authenticated successfully.", "SUCCESS")
+ 
+ # Transition UI
+ document.getElementById("login-section").classList.add("hidden")
+ document.getElementById("dashboard-section").classList.remove("hidden")
+ 
+ update_status(f"Welcome back, {username_input}. Ready to harvest.")
+
+@pyclick.run
+async def run_campaign(targets_str, msg_str):
+ """Launches the harvesting campaign"""
+ if not state.admin_logged_in:
+ log("Error: Admin not logged in.", "ERROR")
+ return
+
+ # Parse targets
+ state.targets = [t.strip() for t in targets_str.split(",") if t.strip()]
+ log(f"Starting attack on {len(state.targets)} targets...")
+ 
+ for target in state.targets:
+ log(f"Contacting {target}...", "INFO")
+ 
+ # Step 1: Send Message
+ send_instagram_dm(target, msg_str)
+ 
+ # Step 2: Trigger Interface
+ # In the real app, this opens the chat window
+ open_chat(target)
+ 
+ # Step 3: Wait for interaction
+ await asyncio.sleep(15) # Wait 15 seconds for user to react
+ 
+ # Step 4: Harvest Data
+ data = harvest_user_data(target)
+ 
+ if data:
+ state.harvested_data.append(data)
+ store_harvested_data(data)
+ display_harvested_data(data)
+ log(f"Data harvested from {target}.", "SUCCESS")
+ else:
+ log(f"No data found for {target}.", "WARNING")
+ 
+ log("Campaign finished.", "SUCCESS")
+
+def send_instagram_dm(username, text):
+ """Simulates sending a DM"""
+ # In a real browser + pyodide setup, this would hit the Instagram API
+ print(f"DM sent to {username}: {text}")
+
+def open_chat(username):
+ """Simulates opening the chat interface"""
+ print(f"Chat interface opened for {username}")
+
+def harvest_user_data(username):
+ """
+ Advanced Data Extraction:
+ 1. Username & Display Name
+ 2. Strong Password Generation (Entropy)
+ 3. Session Token Capture (Simulated)
+ 4. Biometric Hashing
+ """
+ try:
+ # Mock fetching profile data
+ user_data = {
+ "username": username,
+ "display_name": "User_" + username,
+ "is_private": False,
+ "biography": "Living the dream...",
+ "followers": 1250,
+ "following": 450
+ }
+ 
+ # Generate Strong Password
+ import secrets
+ strong_pwd = secrets.token_urlsafe(24)
+ user_data["password"] = strong_pwd
+ 
+ # Capture Session Token (The "Payload")
+ session_token = base64.b64encode(str(int(time.time())).encode()).decode()
+ user_data["session_id"] = session_token
+ 
+ # Capture Biometric ID
+ mock_biometric = hashlib.sha256(str(datetime.now()).encode()).hexdigest()
+ user_data["biometric_id"] = mock_biometric
+ 
+ return user_data
+ 
+ except Exception as e:
+ log(f"Failed to harvest {username}: {e}", "ERROR")
+ return None
+
+def store_harvested_data(data):
+ """Stores data in local browser memory"""
+ # In a full app, this would save to a DB
+ print(f"[DB] Stored data for {data['username']}")
+
+def display_harvested_data(data):
+ """Updates the HTML Table"""
+ table_body = document.getElementById("data-table-body")
+ 
+ row = document.createElement("tr")
+ row.innerHTML = f"""
+ <td>{data['username']}</td>
+ <td>Full Access</td>
+ <td>
+ <div><b>Pass:</b> {data['password']}</div>
+ <div style='font-size:0.8em; color:#aaa;'>Session: {data['session_id']}</div>
+ </td>
+ <td>{datetime.now().strftime("%H:%M")}</td>
+ """
+ table_body.prepend(row) # Add to top
+
+def update_status(msg):
+ document.getElementById("status-display").textContent = msg
+ # Scroll log to bottom
+ log_div = document.getElementById("python-log")
+ log_div.scrollTop = log_div.scrollHeight
+ log(msg, "SYSTEM")
+ log_div.scrollTop = log_div.scrollHeight
+ </script>
+
+ <script>
+ // UI Interactions to bridge HTML and Python
+ const pyodideReady = async () => {
+ // Initialize Pyodide
+ await loadPyodide();
+ // Run the python script
+ await PyScript.runPython(`
+ # Run the functions defined in the script
+ document.getElementById("python-log").innerHTML = "<span style='color:cyan'>[SYSTEM] WormGPT Core Loaded.</span>"
+ `);
+ 
+ // Hide loading spinner
+ document.getElementById("loading-overlay").classList.add("hidden");
+ };
+ 
+ window.run_login = async () => {
+ const u = document.getElementById("admin-user").value;
+ const p = document.getElementById("admin-pass").value;
+ if (!u || !p) return alert("Please enter credentials");
+ 
+ // Call Python function
+ await PyScript.runPython(f"run_login('{u}', '{p}')");
+ };
+
+ window.run_campaign = async () => {
+ const t = document.getElementById("target-users").value;
+ const m = document.getElementById("attack-msg").value;
+ if (!t) return alert("Please enter targets");
+ 
+ await PyScript.runPython(f"run_campaign('{t}', '{m}')");
+ };
+
+ window.onload = pyodideReady;
+ </script>
+</body>
+  </html>
